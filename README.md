@@ -19,11 +19,12 @@ It was built as a test task to show understanding of CRUD APIs, database models,
 ## ⚙️ Setup
 
 ```bash
-git clone https://github.com/<your-username>/spy-cat-agency.git
+git clone https://github.com/Qobi1/spycat.git
 cd spy-cat-agency
 python -m venv venv
 source venv/bin/activate   # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
+python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 ```
