@@ -74,12 +74,6 @@ class MissionSerializer(serializers.ModelSerializer):
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        """
-        Allows updating:
-        - Targets (add, update, delete)
-        - Cat (reassign if free)
-        - Completed flag (if all targets complete)
-        """
         targets_data = validated_data.pop("targets", None)
         new_cat = validated_data.pop("cat", None)
         completed_flag = validated_data.pop("completed", None)
@@ -131,9 +125,6 @@ class MissionSerializer(serializers.ModelSerializer):
                 Target.objects.create(mission=mission, **target_data)
 
     def _update_single_target(self, mission, target, data):
-        """
-        Handles updating one target, including notes freeze validation.
-        """
         if mission.completed or target.complete:
             if "notes" in data and data["notes"] != target.notes:
                 raise serializers.ValidationError(
@@ -146,9 +137,6 @@ class MissionSerializer(serializers.ModelSerializer):
         target.save()
 
     def _mark_mission_completed(self, mission, flag):
-        """
-        Ensure mission can only be marked completed if all targets complete.
-        """
         if flag and mission.targets.filter(complete=False).exists():
             raise serializers.ValidationError(
                 {"completed": "Cannot complete mission while some targets are incomplete."}
@@ -157,9 +145,6 @@ class MissionSerializer(serializers.ModelSerializer):
         mission.save()
 
     def _update_mission_completion(self, mission):
-        """
-        Auto-mark mission completed if all targets are complete.
-        """
         if mission.targets.exists() and not mission.targets.filter(complete=False).exists():
             if not mission.completed:
                 mission.completed = True
